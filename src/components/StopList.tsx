@@ -32,19 +32,19 @@ export function StopList() {
         Stops
       </div>
 
-      <div className="flex flex-col gap-0.5">
-        <div
+      <ul className="m-0 flex list-none flex-col gap-0.5 p-0">
+        <li
           className="flex items-center gap-3 px-3 py-2.5"
           style={{ background: 'var(--op-panel-alt)', borderLeft: '3px solid transparent' }}
         >
           <CheckIcon />
-          <div className="flex-1 text-[13px]" style={{ color: 'var(--op-text-dim)' }}>
+          <span className="flex-1 text-[13px]" style={{ color: 'var(--op-text-dim)' }}>
             Origin · {route.origin.label}
-          </div>
+          </span>
           <span className="font-mono text-[11px]" style={{ color: 'var(--op-text-muted)' }}>
             DEPARTED
           </span>
-        </div>
+        </li>
 
         {stops.map(({ stop, status, etaMinutes }) => {
           const rowStyle: CSSProperties = {
@@ -55,7 +55,12 @@ export function StopList() {
             }),
           }
           return (
-            <div key={stop.id} className="flex items-center gap-3 px-3 py-2.5" style={rowStyle}>
+            <li
+              key={stop.id}
+              className="flex items-center gap-3 px-3 py-2.5"
+              style={rowStyle}
+              aria-current={status === 'active' ? 'step' : undefined}
+            >
               {status === 'done' ? (
                 <CheckIcon />
               ) : status === 'active' ? (
@@ -69,7 +74,7 @@ export function StopList() {
                   style={{ border: '1.5px solid var(--op-border)' }}
                 />
               )}
-              <div
+              <span
                 className="flex-1 text-[13px]"
                 style={{
                   color: status === 'active' ? 'var(--op-text)' : 'var(--op-text-dim)',
@@ -77,7 +82,7 @@ export function StopList() {
                 }}
               >
                 {stop.id} · {stop.label}
-              </div>
+              </span>
               <span
                 className="font-mono text-[11px]"
                 style={{
@@ -87,10 +92,10 @@ export function StopList() {
               >
                 {status === 'done' ? 'ARRIVED' : `ETA ${String(etaMinutes).padStart(2, '0')} MIN`}
               </span>
-            </div>
+            </li>
           )
         })}
-      </div>
+      </ul>
     </div>
   )
 }
