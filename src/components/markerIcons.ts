@@ -21,3 +21,15 @@ export function stopIcon(label: string): L.DivIcon {
     26,
   )
 }
+
+const TRUCK_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+  <rect x="1" y="7" width="13" height="9" rx="1"/>
+  <path d="M14 10h4l3 3v3h-7z"/>
+  <circle cx="6" cy="18" r="1.6"/>
+  <circle cx="17" cy="18" r="1.6"/>
+</svg>`
+
+export const truckIcon = svgIcon(
+  `<div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;background:#1e293b;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.5)">${TRUCK_SVG}</div>`,
+  28,
+)

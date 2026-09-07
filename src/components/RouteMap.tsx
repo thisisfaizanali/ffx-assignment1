@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react'
 import { MapContainer, Marker, Polyline, TileLayer, Tooltip, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { pathPoints } from '../lib/geo'
+import { useCurrentPoint } from '../selectors/derived'
+import { useSimulationStore } from '../store/simulationStore'
 import type { Route } from '../types'
-import { originIcon, stopIcon } from './markerIcons'
+import { originIcon, stopIcon, truckIcon } from './markerIcons'
 
 // Single free, keyless tile source (OSM). Dark mode is a CSS filter on the
 // tile pane rather than a second (paid/key-gated) tile provider.
@@ -13,7 +15,6 @@ const TILES = {
 }
 
 interface RouteMapProps {
-  route: Route
   dark?: boolean
 }
 
@@ -26,10 +27,19 @@ function FitToRoute({ route }: { route: Route }) {
   return null
 }
 
-export function RouteMap({ route, dark }: RouteMapProps) {
+function TruckMarker() {
+  const point = useCurrentPoint()
+  if (!point) return null
+  return <Marker position={[point.position.lat, point.position.lng]} icon={truckIcon} />
+}
+
+export function RouteMap({ dark }: RouteMapProps) {
+  const route = useSimulationStore((s) => s.route)
   const [isDark] = useState(
     () => dark ?? window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false,
   )
+
+  if (!route) return null
   const points = pathPoints(route).map((p) => [p.lat, p.lng] as [number, number])
 
   return (
@@ -58,6 +68,8 @@ export function RouteMap({ route, dark }: RouteMapProps) {
           </Tooltip>
         </Marker>
       ))}
+
+      <TruckMarker />
     </MapContainer>
   )
 }
