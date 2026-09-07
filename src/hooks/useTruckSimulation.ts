@@ -1,0 +1,42 @@
+import { useEffect } from 'react'
+import { useSimulationStore } from '../store/simulationStore'
+
+// Full route at 1x playback speed takes this long. Deliberately compressed
+// from route.averageSpeedKmh (real-world pace, used only for ETA display) so
+// the animation is watchable rather than literally 30-40 real minutes long.
+const BASE_DURATION_MS = 20_000
+
+/**
+ * Drives the store's `progress` forward while status is 'running', using
+ * wall-clock elapsed time (not a fixed tick), so pausing freezes progress
+ * exactly and a speed change never jumps the truck.
+ */
+export function useTruckSimulation() {
+  const status = useSimulationStore((s) => s.status)
+  const route = useSimulationStore((s) => s.route)
+
+  useEffect(() => {
+    if (status !== 'running' || !route) return
+
+    let rafId: number
+    let last = performance.now()
+
+    const tick = (now: number) => {
+      const deltaMs = now - last
+      last = now
+
+      const { speed, progress } = useSimulationStore.getState()
+      const next = Math.min(progress + (deltaMs * speed) / BASE_DURATION_MS, 1)
+      useSimulationStore.getState().setProgress(next)
+
+      if (next >= 1) {
+        useSimulationStore.getState().setStatus('complete')
+        return
+      }
+      rafId = requestAnimationFrame(tick)
+    }
+
+    rafId = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(rafId)
+  }, [status, route])
+}
