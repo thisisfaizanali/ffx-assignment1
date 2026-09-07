@@ -1,6 +1,6 @@
+import { RouteMap } from './components/RouteMap'
 import { useRoute } from './hooks/useRoute'
 
-// Temporary scaffold view. Replaced with the real map and status UI in M3-M5.
 function App() {
   const { data, loading, error, retry } = useRoute()
 
@@ -17,7 +17,13 @@ function App() {
     )
   }
 
-  return <pre className="p-6 text-sm">{JSON.stringify(data, null, 2)}</pre>
+  if (!data) return null
+
+  return (
+    <div className="h-screen w-screen">
+      <RouteMap route={data} />
+    </div>
+  )
 }
 
 export default App
