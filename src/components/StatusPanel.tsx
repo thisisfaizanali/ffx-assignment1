@@ -63,7 +63,7 @@ export function StatusPanel() {
           style={{ background: 'var(--op-border)' }}
         >
           <div
-            className="h-full rounded-sm transition-[width]"
+            className="h-full rounded-sm transition-[width] motion-reduce:transition-none"
             style={{ width: `${percent}%`, background: 'var(--op-accent)' }}
           />
         </div>

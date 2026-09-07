@@ -58,8 +58,12 @@ export function PlaybackControls() {
     >
       <button
         onClick={togglePlay}
-        className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded text-[13px] font-semibold"
-        style={{ background: 'var(--op-accent)', color: 'var(--op-accent-ink)' }}
+        className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded text-[13px] font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"
+        style={{
+          background: 'var(--op-accent)',
+          color: 'var(--op-accent-ink)',
+          outlineColor: 'var(--op-accent)',
+        }}
       >
         {isRunning ? (
           <>
@@ -79,13 +83,15 @@ export function PlaybackControls() {
       <button
         onClick={reset}
         aria-label="Reset to origin"
-        className="flex h-9 w-9 items-center justify-center rounded border"
-        style={{ borderColor: 'var(--op-border)' }}
+        className="flex h-9 w-9 items-center justify-center rounded border focus-visible:outline-2 focus-visible:outline-offset-2"
+        style={{ borderColor: 'var(--op-border)', outlineColor: 'var(--op-accent)' }}
       >
         <ResetIcon />
       </button>
 
       <div
+        role="group"
+        aria-label="Playback speed"
         className="flex overflow-hidden rounded border"
         style={{ borderColor: 'var(--op-border)' }}
       >
@@ -94,12 +100,13 @@ export function PlaybackControls() {
             key={s}
             onClick={() => setSpeed(s)}
             aria-pressed={speed === s}
-            className="px-2.5 py-2.5 font-mono text-[11px]"
+            className="px-2.5 py-2.5 font-mono text-[11px] focus-visible:relative focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-[-2px]"
             style={{
               background: speed === s ? 'var(--op-accent-soft)' : 'transparent',
               color: speed === s ? 'var(--op-accent-text)' : 'var(--op-text-muted)',
               fontWeight: speed === s ? 600 : 400,
               borderLeft: i === 0 ? 'none' : '1px solid var(--op-border)',
+              outlineColor: 'var(--op-accent)',
             }}
           >
             {s}×
