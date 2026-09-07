@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 @import 'tailwindcss';
 
 html,
@@ -10,4 +11,24 @@ body,
 /* Dark tiles via filter: no second (paid/key-gated) tile provider needed. */
 .map-dark .leaflet-tile-pane {
   filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9);
+}
+
+/* Operations console theme tokens (dark). Light variant lands in M6. */
+:root {
+  --op-bg: oklch(0.17 0.006 250);
+  --op-panel-alt: oklch(0.21 0.007 250);
+  --op-border: oklch(0.3 0.01 250);
+  --op-border-soft: oklch(0.26 0.009 250);
+  --op-text: oklch(0.93 0.004 250);
+  --op-text-dim: oklch(0.65 0.01 250);
+  --op-text-muted: oklch(0.55 0.012 250);
+  --op-accent: oklch(0.74 0.16 55);
+  --op-accent-soft: oklch(0.74 0.16 55 / 0.1);
+  --op-accent-border: oklch(0.74 0.16 55 / 0.5);
+  --op-accent-text: oklch(0.8 0.15 55);
+  --op-accent-ink: oklch(0.16 0.01 60);
+}
+
+.font-mono {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
 }
