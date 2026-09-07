@@ -40,7 +40,9 @@ function MapTheme({ dark }: { dark: boolean }) {
 function TruckMarker() {
   const point = useCurrentPoint()
   if (!point) return null
-  return <Marker position={[point.position.lat, point.position.lng]} icon={truckIcon} />
+  return (
+    <Marker position={[point.position.lat, point.position.lng]} icon={truckIcon} keyboard={false} />
+  )
 }
 
 export function RouteMap({ dark }: RouteMapProps) {
@@ -59,14 +61,19 @@ export function RouteMap({ dark }: RouteMapProps) {
         pathOptions={{ color: '#ef4444', weight: 3, dashArray: '6 8' }}
       />
 
-      <Marker position={[route.origin.lat, route.origin.lng]} icon={originIcon}>
+      <Marker position={[route.origin.lat, route.origin.lng]} icon={originIcon} keyboard={false}>
         <Tooltip permanent direction="top" offset={[0, -8]} className="!text-xs">
           {route.origin.label}
         </Tooltip>
       </Marker>
 
       {route.stops.map((stop) => (
-        <Marker key={stop.id} position={[stop.lat, stop.lng]} icon={stopIcon(stop.id)}>
+        <Marker
+          key={stop.id}
+          position={[stop.lat, stop.lng]}
+          icon={stopIcon(stop.id)}
+          keyboard={false}
+        >
           <Tooltip permanent direction="top" offset={[0, -14]} className="!text-xs">
             {stop.id} &middot; {stop.label}
           </Tooltip>
