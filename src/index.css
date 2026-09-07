@@ -1,1 +1,13 @@
 @import 'tailwindcss';
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+/* Dark tiles via filter: no second (paid/key-gated) tile provider needed. */
+.map-dark .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9);
+}
