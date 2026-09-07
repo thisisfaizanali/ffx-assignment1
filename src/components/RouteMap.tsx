@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { MapContainer, Marker, Polyline, TileLayer, Tooltip, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { pathPoints } from '../lib/geo'
@@ -15,7 +15,7 @@ const TILES = {
 }
 
 interface RouteMapProps {
-  dark?: boolean
+  dark: boolean
 }
 
 function FitToRoute({ route }: { route: Route }) {
@@ -27,6 +27,16 @@ function FitToRoute({ route }: { route: Route }) {
   return null
 }
 
+// MapContainer only applies `className` at creation, so a later theme
+// change needs to toggle the class on the live container directly.
+function MapTheme({ dark }: { dark: boolean }) {
+  const map = useMap()
+  useEffect(() => {
+    map.getContainer().classList.toggle('map-dark', dark)
+  }, [map, dark])
+  return null
+}
+
 function TruckMarker() {
   const point = useCurrentPoint()
   if (!point) return null
@@ -35,20 +45,14 @@ function TruckMarker() {
 
 export function RouteMap({ dark }: RouteMapProps) {
   const route = useSimulationStore((s) => s.route)
-  const [isDark] = useState(
-    () => dark ?? window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false,
-  )
 
   if (!route) return null
   const points = pathPoints(route).map((p) => [p.lat, p.lng] as [number, number])
 
   return (
-    <MapContainer
-      center={points[0]}
-      zoom={12}
-      className={`h-full w-full ${isDark ? 'map-dark' : ''}`}
-    >
+    <MapContainer center={points[0]} zoom={12} className="h-full w-full">
       <FitToRoute route={route} />
+      <MapTheme dark={dark} />
       <TileLayer url={TILES.url} attribution={TILES.attribution} />
       <Polyline
         positions={points}
