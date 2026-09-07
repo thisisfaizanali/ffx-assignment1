@@ -13,8 +13,47 @@ body,
   filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9);
 }
 
-/* Operations console theme tokens (dark). Light variant lands in M6. */
+/*
+ * Operations console theme tokens. Light is the base (:root); dark applies
+ * either from OS preference or the explicit [data-theme] the toggle sets,
+ * with the explicit attribute always winning over OS preference.
+ */
 :root {
+  color-scheme: light;
+  --op-bg: oklch(0.98 0.003 90);
+  --op-panel-alt: oklch(0.96 0.003 90);
+  --op-border: oklch(0.88 0.005 90);
+  --op-border-soft: oklch(0.91 0.004 90);
+  --op-text: oklch(0.22 0.006 250);
+  --op-text-dim: oklch(0.45 0.01 250);
+  --op-text-muted: oklch(0.55 0.01 250);
+  --op-accent: oklch(0.6 0.16 55);
+  --op-accent-soft: oklch(0.6 0.16 55 / 0.1);
+  --op-accent-border: oklch(0.6 0.16 55 / 0.35);
+  --op-accent-text: oklch(0.42 0.15 50);
+  --op-accent-ink: oklch(0.99 0.003 90);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --op-bg: oklch(0.17 0.006 250);
+    --op-panel-alt: oklch(0.21 0.007 250);
+    --op-border: oklch(0.3 0.01 250);
+    --op-border-soft: oklch(0.26 0.009 250);
+    --op-text: oklch(0.93 0.004 250);
+    --op-text-dim: oklch(0.65 0.01 250);
+    --op-text-muted: oklch(0.55 0.012 250);
+    --op-accent: oklch(0.74 0.16 55);
+    --op-accent-soft: oklch(0.74 0.16 55 / 0.1);
+    --op-accent-border: oklch(0.74 0.16 55 / 0.5);
+    --op-accent-text: oklch(0.8 0.15 55);
+    --op-accent-ink: oklch(0.16 0.01 60);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
   --op-bg: oklch(0.17 0.006 250);
   --op-panel-alt: oklch(0.21 0.007 250);
   --op-border: oklch(0.3 0.01 250);
