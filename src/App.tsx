@@ -56,11 +56,11 @@ function SkeletonBlock({ className }: { className: string }) {
 }
 
 // Shape of the real layout (header / map / sidebar), pulsing, rather than
-// bare centered text - this is what a 15%-failure-rate mock API means a
+// bare centered text - this is what a 5%-failure-rate mock API means a
 // reviewer will actually land on some of the time.
 function AppSkeleton() {
   return (
-    <div className="flex h-screen w-screen flex-col" style={SHELL_STYLE}>
+    <div className="flex h-dvh w-screen flex-col" style={SHELL_STYLE}>
       <header
         className="flex h-16 shrink-0 items-center justify-between border-b px-4 sm:px-6"
         style={{ borderColor: 'var(--op-border)' }}
@@ -69,7 +69,7 @@ function AppSkeleton() {
         <SkeletonBlock className="h-6 w-24" />
       </header>
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        <SkeletonBlock className="h-[45vh] min-h-[280px] w-full shrink-0 rounded-none lg:h-auto lg:min-h-0 lg:flex-1" />
+        <SkeletonBlock className="h-[32dvh] min-h-[200px] w-full shrink-0 rounded-none lg:h-auto lg:min-h-0 lg:flex-1" />
         <aside
           className="flex w-full flex-col gap-3 border-t p-5 lg:w-[380px] lg:border-t-0 lg:border-l"
           style={{ borderColor: 'var(--op-border)' }}
@@ -88,7 +88,7 @@ function AppSkeleton() {
 
 function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
-    <div className="flex h-screen w-screen flex-col" style={SHELL_STYLE}>
+    <div className="flex h-dvh w-screen flex-col" style={SHELL_STYLE}>
       <header
         className="flex h-16 shrink-0 items-center border-b px-4 sm:px-6"
         style={{ borderColor: 'var(--op-border)' }}
@@ -135,7 +135,7 @@ function App() {
   if (!storeRoute) return null
 
   return (
-    <div className="flex h-screen w-screen flex-col" style={SHELL_STYLE}>
+    <div className="flex h-dvh w-screen flex-col" style={SHELL_STYLE}>
       <header
         className="flex h-16 shrink-0 items-center justify-between border-b px-4 sm:px-6"
         style={{ borderColor: 'var(--op-border)' }}
@@ -165,7 +165,7 @@ function App() {
         <div
           role="region"
           aria-label="Route map showing truck position and delivery stops"
-          className="relative h-[45vh] min-h-[280px] w-full shrink-0 lg:h-auto lg:min-h-0 lg:flex-1"
+          className="relative h-[32dvh] min-h-[200px] w-full shrink-0 lg:h-auto lg:min-h-0 lg:flex-1"
         >
           <RouteMap dark={theme === 'dark'} />
         </div>
