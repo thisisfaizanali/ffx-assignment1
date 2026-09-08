@@ -14,6 +14,59 @@ body,
 }
 
 /*
+ * Leaflet's own chrome (tooltips, zoom control, attribution) sits above the
+ * tile pane, so the .map-dark filter never reaches it. Themed directly with
+ * tokens instead - unconditionally, since the tokens already flip with the
+ * theme, so this fixes light mode consistency too. !important is needed:
+ * leaflet.css ships equal-or-higher-specificity color rules of its own, and
+ * which stylesheet wins a plain specificity tie depends on JS import/bundle
+ * order rather than anything worth depending on here.
+ */
+.leaflet-tooltip {
+  background: var(--op-bg) !important;
+  color: var(--op-text) !important;
+  border-color: var(--op-border) !important;
+  box-shadow: none !important;
+}
+.leaflet-tooltip-top::before {
+  border-top-color: var(--op-border) !important;
+}
+.leaflet-tooltip-bottom::before {
+  border-bottom-color: var(--op-border) !important;
+}
+.leaflet-tooltip-left::before {
+  border-left-color: var(--op-border) !important;
+}
+.leaflet-tooltip-right::before {
+  border-right-color: var(--op-border) !important;
+}
+
+.leaflet-bar {
+  border-color: var(--op-border) !important;
+}
+.leaflet-bar a {
+  background: var(--op-bg) !important;
+  color: var(--op-text) !important;
+  border-bottom-color: var(--op-border) !important;
+}
+.leaflet-bar a:hover,
+.leaflet-bar a:focus {
+  background: var(--op-panel-alt) !important;
+}
+.leaflet-bar a:focus-visible {
+  outline: 2px solid var(--op-accent);
+  outline-offset: -2px;
+}
+
+.leaflet-control-attribution {
+  background: var(--op-bg) !important;
+  color: var(--op-text-muted) !important;
+}
+.leaflet-control-attribution a {
+  color: var(--op-accent-text) !important;
+}
+
+/*
  * Operations console theme tokens. Light is the base (:root); dark applies
  * either from OS preference or the explicit [data-theme] the toggle sets,
  * with the explicit attribute always winning over OS preference.
