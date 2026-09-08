@@ -6,10 +6,12 @@ import { useSimulationStore } from '../store/simulationStore'
 // the animation is watchable rather than literally 30-40 real minutes long.
 const BASE_DURATION_MS = 20_000
 
-// requestAnimationFrame stops firing entirely while the tab is backgrounded.
-// Without a cap, the first frame after the tab regains visibility sees a
-// huge deltaMs and teleports the truck straight to wherever it "should" be -
-// clamping treats a long gap as an implicit pause instead.
+// Secondary guard against a long, non-hidden stall (e.g. a heavy main-thread
+// task) contributing one huge delta. The primary defense against a
+// backgrounded tab is the visibilitychange pause below - rAF itself gets
+// throttled well before it stops firing, so relying on this clamp alone
+// would just make the truck crawl at a fraction of real speed instead of
+// jumping, which silently desyncs progress from wall clock.
 const MAX_FRAME_MS = 100
 
 /**
@@ -20,6 +22,20 @@ const MAX_FRAME_MS = 100
 export function useTruckSimulation() {
   const status = useSimulationStore((s) => s.status)
   const route = useSimulationStore((s) => s.route)
+
+  // Pause outright when the tab is backgrounded, rather than let a
+  // throttled/stopped rAF desync progress from wall clock. Only pauses a
+  // run in progress - never overrides a pause the user already made, and
+  // never auto-resumes on return, so the truck stays exactly where it was.
+  useEffect(() => {
+    function handleVisibilityChange() {
+      if (document.hidden && useSimulationStore.getState().status === 'running') {
+        useSimulationStore.getState().setStatus('paused')
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [])
 
   useEffect(() => {
     if (status !== 'running' || !route) return
