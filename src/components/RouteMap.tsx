@@ -1,4 +1,5 @@
-import { useEffect } from 'react'
+import type { Marker as LeafletMarker } from 'leaflet'
+import { useEffect, useRef } from 'react'
 import { MapContainer, Marker, Polyline, TileLayer, Tooltip, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { pathPoints } from '../lib/geo'
@@ -37,11 +38,36 @@ function MapTheme({ dark }: { dark: boolean }) {
   return null
 }
 
-function TruckMarker() {
+// Bearing of the current leg, in degrees clockwise from north. A flat
+// lat/lng atan2 (not true great-circle bearing) is plenty accurate at this
+// route's scale, and matches Math.atan2 being the only new math needed.
+function legBearingDeg(route: Route, legIndex: number): number {
+  const points = pathPoints(route)
+  const from = points[legIndex]
+  const to = points[legIndex + 1] ?? from
+  return (Math.atan2(to.lng - from.lng, to.lat - from.lat) * 180) / Math.PI
+}
+
+function TruckMarker({ route }: { route: Route }) {
   const point = useCurrentPoint()
+  const markerRef = useRef<LeafletMarker>(null)
+
+  useEffect(() => {
+    if (!point) return
+    // Icon is drawn facing east, so rotation 0 needs bearing 90 (east).
+    const rotation = legBearingDeg(route, point.legIndex) - 90
+    const body = markerRef.current?.getElement()?.querySelector<HTMLElement>('.truck-body')
+    if (body) body.style.transform = `rotate(${rotation}deg)`
+  }, [point, route])
+
   if (!point) return null
   return (
-    <Marker position={[point.position.lat, point.position.lng]} icon={truckIcon} keyboard={false} />
+    <Marker
+      ref={markerRef}
+      position={[point.position.lat, point.position.lng]}
+      icon={truckIcon}
+      keyboard={false}
+    />
   )
 }
 
@@ -80,7 +106,7 @@ export function RouteMap({ dark }: RouteMapProps) {
         </Marker>
       ))}
 
-      <TruckMarker />
+      <TruckMarker route={route} />
     </MapContainer>
   )
 }

@@ -36,8 +36,10 @@ const TRUCK_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" s
 
 // Anchored a few pixels off-center so the truck never fully eclipses the
 // pin it's arriving at or departing from (origin included, at progress 0).
+// The .truck-body div is rotated per-leg by RouteMap to face the direction
+// of travel (drawn facing east, so the rotation offset is bearing - 90).
 export const truckIcon = svgIcon(
-  `<div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;background:#1e293b;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.5)">${TRUCK_SVG}</div>`,
+  `<div class="truck-body" style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;background:#1e293b;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.5)">${TRUCK_SVG}</div>`,
   28,
   [4, 24],
 )
