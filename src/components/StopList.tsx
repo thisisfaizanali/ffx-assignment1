@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react'
+import { formatEta } from '../lib/format'
 import { useStopsProgress } from '../selectors/derived'
 import { useSimulationStore } from '../store/simulationStore'
 
@@ -90,7 +91,7 @@ export function StopList() {
                   fontWeight: status === 'active' ? 500 : 400,
                 }}
               >
-                {status === 'done' ? 'ARRIVED' : `ETA ${String(etaMinutes).padStart(2, '0')} MIN`}
+                {etaMinutes === null ? 'ARRIVED' : formatEta(etaMinutes)}
               </span>
             </li>
           )

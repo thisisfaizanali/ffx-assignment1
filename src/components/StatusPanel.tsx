@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { formatCoord } from '../lib/format'
 import {
   useCompletedCount,
   useCurrentPoint,
@@ -6,10 +7,6 @@ import {
   useNextStop,
 } from '../selectors/derived'
 import { useSimulationStore } from '../store/simulationStore'
-
-function formatCoord(value: number, positive: string, negative: string): string {
-  return `${Math.abs(value).toFixed(4)}° ${value >= 0 ? positive : negative}`
-}
 
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return (
