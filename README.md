@@ -1,111 +1,232 @@
 # Logistics Truck Route Visualizer
 
-A frontend app that simulates a delivery truck moving through a real route on
-a map, built with React, TypeScript, Zustand and Leaflet.
+A frontend application that simulates a delivery truck moving through a real
+route in Bengaluru — from Whitefield Hub through three delivery points, with
+a live map, real-time status readout, and playback controls.
 
-## Setup
+**Live demo:** https://ffx-assignment1.vercel.app/
+
+Built with React, TypeScript, Vite, Zustand and Leaflet.
+
+---
+
+## Running locally
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Scripts
+Then open the URL Vite prints (default `http://localhost:5173`).
 
-- `npm run dev` start the dev server
-- `npm run build` typecheck and build for production
-- `npm test` run the unit tests
-- `npm run lint` lint the project
+| Script | What it does |
+| --- | --- |
+| `npm run dev` | Start the dev server |
+| `npm run build` | Typecheck (`tsc -b`) and build for production |
+| `npm run preview` | Serve the production build locally |
+| `npm test` | Run the unit tests |
+| `npm run lint` | Lint the project |
 
-## Demo
+No API keys, environment variables or accounts are needed — the map uses
+keyless OpenStreetMap tiles.
 
-The truck starts moving automatically on load, from Whitefield Hub through
-D1 (Marathahalli), D2 (Koramangala) to D3 (Jayanagar) in Bengaluru. Use the
-controls at the bottom of the sidebar to pause, resume, reset or change
-playback speed. The theme toggle is in the header. About 15% of page
-loads simulate a failed route fetch, to exercise the loading/error/retry
-states genuinely rather than leaving them as dead code; Retry re-fetches.
+---
+
+## What it does
+
+The truck departs automatically on load and drives Whitefield Hub → D1
+Marathahalli → D2 Koramangala → D3 Jayanagar, a 17.6 km route using real
+coordinates. As it moves, the sidebar updates live with its position,
+distance covered, next stop and completed count, and each stop's ETA counts
+down until it's marked as arrived.
+
+Playback controls sit at the bottom of the sidebar: pause and resume, reset
+to the origin, or run at 1×, 2× or 4×. The theme toggle is in the header.
+
+The route is fetched through a mock service with realistic latency and a
+deliberate failure rate, so the loading and error states are reachable
+behaviour rather than code that never runs — if you land on the error card,
+Retry re-fetches.
+
+---
+
+## Requirements checklist
+
+**Core**
+
+- [x] Map showing the origin location
+- [x] Map showing 3 delivery points (D1, D2, D3)
+- [x] Route path drawn between them
+- [x] Truck marker animating Origin → D1 → D2 → D3
+- [x] Live truck status: current location
+- [x] Live truck status: distance covered
+- [x] Live truck status: next stop
+- [x] Live truck status: completed stops
+
+**Bonus**
+
+- [x] Pause / resume tracking (plus reset and 1× / 2× / 4× playback speed)
+- [x] ETA calculation, per stop
+- [x] Dark mode, with system-preference detection and persistence
+
+---
 
 ## Architecture
 
 ```
 src/
-  api/            mock route fetch (simulated latency + failure rate)
-  types.ts        Stop, Route, SimStatus
-  store/          zustand: status, progress, speed, route
-  selectors/      derived.ts: current location, leg, next stop, distance,
-                  completed stops, ETA - computed from route + progress,
-                  never stored
-  hooks/          useRoute (data fetching), useTruckSimulation (the
-                  animation engine), useTheme (light/dark)
-  lib/geo.ts       haversine distance, cumulative leg distances,
-                  point-along-path interpolation
-  lib/format.ts    shared ETA and coordinate formatting
-  components/     RouteMap, StatusPanel, StopList, PlaybackControls,
-                  ThemeToggle
+  api/           routeService.ts  mock fetch: latency + failure rate
+                 routeFixture.ts  the route data
+  types.ts       Stop, Route, SimStatus
+  store/         zustand store: status, progress, speed, route
+  selectors/     derived.ts  position, distance, next stop, completed
+                 count, per-stop status and ETA - all computed, never stored
+  hooks/         useRoute       data fetching (loading / error / retry)
+                 useTruckSimulation  the animation engine
+                 useTheme       light / dark with persistence
+  lib/           geo.ts     haversine, leg distances, point-along-path
+                 format.ts  coordinate and ETA formatting
+  components/    RouteMap, StatusPanel, StopList, PlaybackControls,
+                 ThemeToggle
 ```
 
-**State.** A single small Zustand store holds only `status`, `progress`
-(0..1 along the full path), `speed` and `route`. Everything else - current
-position, current leg, distance covered, next stop, completed stops, ETA
-per stop - is computed on demand in `selectors/derived.ts` from
-`route + progress`, so there is nothing to keep in sync by hand. Components
-read the store and the selectors directly with narrow hooks, so each one
-only re-renders on the slice it actually uses.
+### State: one small store, everything else derived
 
-**Simulation engine.** `useTruckSimulation` drives `progress` forward with
-`requestAnimationFrame`, using wall-clock elapsed time rather than a fixed
-tick. That means pausing freezes progress exactly where it was, and changing
-the speed multiplier never causes a jump, since the next frame just resumes
-computing from the current, unchanged progress value. A `visibilitychange`
-listener pauses a run in progress the instant the tab is backgrounded (and
-never auto-resumes on return), because `requestAnimationFrame` throttles
-well before it stops firing outright - without this, a backgrounded tab
-silently desyncs progress from wall clock instead of cleanly pausing.
+The Zustand store holds exactly four fields — `status`, `progress` (0..1
+along the whole path), `speed` and `route`. Nothing about the truck's
+position, distance, ETA or stop states is stored anywhere.
 
-**Map.** Real Leaflet + OpenStreetMap tiles (no API key, no billing). The
-route, delivery points and the animated truck marker all use real Bengaluru
-coordinates and real road-network tiles, not a mock. Dark mode is a CSS
-filter on the tile layer rather than a second, paid/key-gated tile provider
-(CartoDB's free dark tiles now require a key, so this was a real fallback,
-not a preemptive choice).
+All of it is computed on demand in `selectors/derived.ts` from
+`route + progress` using pure functions, exposed through thin memoised hooks
+that components call directly. Adding a new piece of status information
+means deriving it, not adding another field to keep in sync.
 
-**Theme.** `useTheme` reads a stored preference or falls back to
+This is the main design decision in the project. Storing position and
+distance alongside progress would mean three values that can disagree with
+each other; deriving them means they cannot.
+
+### Simulation engine
+
+`useTruckSimulation` advances `progress` with `requestAnimationFrame`, using
+the wall-clock time elapsed between frames rather than a fixed tick. Two
+consequences fall out of that:
+
+- **Pausing is exact.** When status isn't `running` the effect simply
+  doesn't run, so progress freezes where it was rather than drifting.
+- **Changing speed never jumps.** The loop reads `speed` and `progress`
+  fresh from the store each frame instead of closing over stale values, so a
+  1× → 4× switch takes effect on the next frame from the current position.
+
+A `visibilitychange` listener pauses a run in progress the moment the tab is
+backgrounded, and never auto-resumes. This matters because
+`requestAnimationFrame` gets throttled long before it stops firing outright
+— without an explicit pause, a backgrounded tab doesn't freeze, it crawls,
+and progress silently desyncs from wall clock.
+
+### Map
+
+Real Leaflet with OpenStreetMap tiles — no API key, no billing. The origin,
+delivery points and animated truck all use real Bengaluru coordinates.
+
+A few details worth noting:
+
+- **Dark mode** is a CSS filter over the tile pane rather than a second tile
+  provider, because the free keyless dark basemaps (CartoDB and similar) now
+  require a key. Leaflet's own tooltips, zoom controls and attribution are
+  themed against the same custom properties as the rest of the app, so they
+  invert with it.
+- **`MapContainer` only applies `className` at creation time**, so a theme
+  change after mount can't go through props. A small child component toggles
+  the class on the live container via `useMap()` instead.
+- **Leaflet only listens for the browser window's resize event**, not its
+  own container's. The layout moves the map between full width and a shared
+  row at the `lg` breakpoint without the window changing size, so a
+  `ResizeObserver` calls `invalidateSize()` to keep tiles from being drawn
+  at a stale size.
+- **The truck glyph mirrors rather than rotates.** It's a side-view icon, so
+  rotating it to a compass bearing would flip it upside down past ±90° — on
+  a westbound route, that's the entire journey. Westward legs get a
+  horizontal flip; the badge around it stays square.
+
+### Theme
+
+`useTheme` reads a stored preference, falling back to
 `prefers-color-scheme`, persists the choice to `localStorage`, and sets a
-`data-theme` attribute that CSS custom properties key off. The map's dark
-filter is applied by watching that same value.
+`data-theme` attribute on `<html>`. CSS custom properties key off it in
+three layers: `:root` as the light base, a `prefers-color-scheme` block for
+system dark, and an explicit `[data-theme="dark"]` block so a manual choice
+always wins over the system setting.
 
-## Key decisions and tradeoffs
+---
 
-- **Animation pace is decoupled from the route's real-world speed.** ETA
-  math uses a realistic average speed (30 km/h) so the numbers in the status
-  panel and stop list are believable. The on-screen animation instead
-  completes a full route in a fixed ~20 seconds at 1x, because animating at
-  the literal real-world pace made the demo take 30-40 real minutes to
-  finish - discovered by actually watching it run, not assumed.
-- **Zustand is scoped to simulation state only.** Data fetching stays in a
-  plain hook (`useRoute`), and theme stays in another (`useTheme`). Neither
-  needed a shared store.
-- **The mock API has a genuine, non-zero failure rate** (15%) instead of
-  always succeeding, so the loading/error/retry UI is real, reachable
-  behavior rather than code nobody ever sees run.
-- **No component library.** Everything is hand-built against a small set of
-  CSS custom property tokens (an "operations console" system: IBM Plex
-  Sans/Mono, an amber accent for "active", light and dark palettes) to avoid
-  the generic look of default Tailwind components.
-- **The route is straight-line legs over real roads**, not road-following
-  (so the polyline cuts across Bellandur Lake rather than routing around
-  it). Real road-network routing needs a keyed service (OSRM, Mapbox
-  Directions, Google Directions); adding one would mean either a paid key or
-  a self-hosted OSRM instance, which is out of scope for a
-  `no API key, no billing` map. Worth doing with a key in hand.
+## Key decisions and trade-offs
+
+**Animation pace is decoupled from real-world speed.** ETA maths uses a
+realistic 30 km/h average, so the numbers in the status panel are
+believable. The on-screen animation instead completes the full route in a
+fixed 20 seconds at 1×. Animating at the literal real-world pace would make
+the demo take 30–40 actual minutes.
+
+**Zustand is scoped to simulation state only.** Data fetching lives in a
+plain hook (`useRoute`), theme in another (`useTheme`). Neither needs to be
+shared across the tree, so neither belongs in a global store.
+
+**The mock API fails 5% of the time.** Rather than always resolving, the
+service has a genuine failure rate, which means the loading skeleton, error
+card and retry path are real, reachable behaviour instead of code nobody
+ever sees run. The route data is isolated behind an async boundary
+(`getRoute(): Promise<Route>`), so nothing downstream knows or cares that
+it's local — swapping in a real backend is a change to one function body.
+
+**No component library.** Everything is built against a small set of CSS
+custom property tokens — an "operations console" system with IBM Plex
+Sans/Mono and an amber accent for active states, in light and dark — to
+avoid the generic look of default component kits.
+
+**The route is straight-line legs over real roads**, not road-following, so
+the polyline cuts across Bellandur Lake rather than routing around it. Real
+road-network routing needs a keyed service (OSRM, Mapbox or Google
+Directions), which would mean either a paid key or a self-hosted OSRM
+instance — out of scope for a map that deliberately needs neither. Worth
+adding with a key in hand.
+
+---
 
 ## Accessibility
 
-Keyboard-operable controls with themed focus rings, `aria-pressed` on the
-speed selector, `aria-live` on the status pill (not on the constantly
-updating distance/ETA numbers, to avoid spamming screen readers every
-frame), a labelled map region, semantic list markup for the stop list, and
-`prefers-reduced-motion` support on cosmetic CSS transitions. The truck's
-motion itself is the app's core content, not decorative, so it is not
-disabled under reduced motion.
+- Keyboard-operable controls throughout, with themed `focus-visible` rings
+- `aria-pressed` on the playback speed selector, `aria-current="step"` on the
+  active stop
+- `aria-live` on the status pill only — deliberately *not* on the distance
+  and ETA figures, which change every frame and would flood a screen reader
+- A labelled map region, and semantic list markup for the stops
+- Decorative map markers are kept out of the tab order
+- `prefers-reduced-motion` respected on cosmetic transitions and the loading
+  skeleton's pulse. The truck's own motion is the app's content rather than
+  decoration, so it isn't disabled
+
+---
+
+## Testing
+
+```bash
+npm test
+```
+
+Unit tests cover the pure logic the rest of the app depends on — haversine
+distance, per-leg and total route distance, point-along-path interpolation
+including clamping at both ends, and the coordinate and ETA formatters.
+
+The geometry is the right thing to test here: both the animated map marker
+and every derived status value are computed from it, so an error there would
+surface everywhere at once.
+
+---
+
+## Responsive layout
+
+Above the `lg` breakpoint the map and sidebar sit side by side. Below it,
+the map takes the upper portion of the viewport with the status panel, stop
+list and controls stacked in a scrollable column beneath. The header drops
+the origin → destination subtitle below `sm` to keep the title, status pill
+and theme toggle on one line.
