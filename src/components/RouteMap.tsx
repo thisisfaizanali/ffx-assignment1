@@ -38,6 +38,22 @@ function MapTheme({ dark }: { dark: boolean }) {
   return null
 }
 
+// Leaflet 1.9's built-in resize handling only listens for the browser
+// window's resize event, not its own container - a pure layout-driven
+// container resize (the lg breakpoint moving the map between full width
+// and a shared row) never fires that, leaving tiles positioned for the
+// stale size until something calls invalidateSize().
+function MapResize() {
+  const map = useMap()
+  useEffect(() => {
+    const container = map.getContainer()
+    const observer = new ResizeObserver(() => map.invalidateSize())
+    observer.observe(container)
+    return () => observer.disconnect()
+  }, [map])
+  return null
+}
+
 // Bearing of the current leg, in degrees clockwise from north. A flat
 // lat/lng atan2 (not true great-circle bearing) is plenty accurate at this
 // route's scale, and matches Math.atan2 being the only new math needed.
@@ -81,6 +97,7 @@ export function RouteMap({ dark }: RouteMapProps) {
     <MapContainer center={points[0]} zoom={12} className="h-full w-full">
       <FitToRoute route={route} />
       <MapTheme dark={dark} />
+      <MapResize />
       <TileLayer url={TILES.url} attribution={TILES.attribution} />
       <Polyline
         positions={points}
