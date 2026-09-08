@@ -18,9 +18,18 @@ export const useSimulationStore = create<SimulationState>((set) => ({
   progress: 0,
   speed: 1,
   route: null,
+  // Autoplay on load - the one case where forcing 'running' is correct.
   setRoute: (route) => set({ route, progress: 0, status: 'running' }),
   setStatus: (status) => set({ status }),
   setProgress: (progress) => set({ progress }),
   setSpeed: (speed) => set({ speed }),
-  reset: () => set({ progress: 0, status: 'running' }),
+  // Returns to the origin without implying "reset" also means "play": it
+  // preserves whatever status the truck was in, except 'complete' (nothing
+  // to preserve there), which becomes 'paused'. The Restart control wants
+  // reset-and-play; it calls setStatus('running') itself after this.
+  reset: () =>
+    set((state) => ({
+      progress: 0,
+      status: state.status === 'complete' ? 'paused' : state.status,
+    })),
 }))

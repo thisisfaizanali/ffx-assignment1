@@ -47,8 +47,12 @@ export function PlaybackControls() {
 
   const togglePlay = () => {
     if (isRunning) setStatus('paused')
-    else if (isComplete) reset()
-    else setStatus('running')
+    else if (isComplete) {
+      // Restart wants reset-and-play; reset() alone only clears progress
+      // and preserves status, so this explicitly starts it running too.
+      reset()
+      setStatus('running')
+    } else setStatus('running')
   }
 
   return (
