@@ -1,6 +1,6 @@
 import L from 'leaflet'
 
-// ponytail: inline SVG divIcons, no external marker image assets to wire up.
+// Inline SVG divIcons: no external marker image assets to wire up.
 function svgIcon(
   html: string,
   size: number,

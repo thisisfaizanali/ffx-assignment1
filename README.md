@@ -97,7 +97,7 @@ filter is applied by watching that same value.
   it). Real road-network routing needs a keyed service (OSRM, Mapbox
   Directions, Google Directions); adding one would mean either a paid key or
   a self-hosted OSRM instance, which is out of scope for a `no API key, no
-  billing` map. Worth doing with a key in hand.
+billing` map. Worth doing with a key in hand.
 
 ## Accessibility
 
@@ -112,10 +112,6 @@ disabled under reduced motion.
 ## Known limitation
 
 Mobile/tablet responsive layout (map stacked above a scrollable sidebar
-below the `lg` breakpoint, header collapsing the route-id subtitle below
-`sm`) is implemented and confirmed structurally correct (the right
-breakpoint classes on the right elements), but has not been visually
-confirmed in a real narrow viewport - the browser automation available in
-this environment cannot resize its own viewport independent of the rest of
-the browser window. Worth one manual check on a real device or in DevTools
-before final submission.
+below the `lg` breakpoint, header collapsing the origin/destination
+subtitle below `sm`) has not yet had a final manual pass on a real device or in DevTools'
+device toolbar. Worth one check before final submission.
