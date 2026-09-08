@@ -2,7 +2,7 @@ import type { Route } from '../types'
 import { routeFixture } from './routeFixture'
 
 const LATENCY_MS = 600
-const FAILURE_RATE = 0.15
+const FAILURE_RATE = 0.05
 
 /**
  * Simulates fetching the route from a backend: real latency, and a real
