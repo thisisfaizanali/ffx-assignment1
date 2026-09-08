@@ -21,8 +21,8 @@ npm run dev
 
 The truck starts moving automatically on load, from Whitefield Hub through
 D1 (Marathahalli), D2 (Koramangala) to D3 (Jayanagar) in Bengaluru. Use the
-controls in the bottom right of the sidebar to pause, resume, reset or
-change playback speed. The theme toggle is in the header. About 15% of page
+controls at the bottom of the sidebar to pause, resume, reset or change
+playback speed. The theme toggle is in the header. About 15% of page
 loads simulate a failed route fetch, to exercise the loading/error/retry
 states genuinely rather than leaving them as dead code; Retry re-fetches.
 
@@ -40,6 +40,7 @@ src/
                   animation engine), useTheme (light/dark)
   lib/geo.ts       haversine distance, cumulative leg distances,
                   point-along-path interpolation
+  lib/format.ts    shared ETA and coordinate formatting
   components/     RouteMap, StatusPanel, StopList, PlaybackControls,
                   ThemeToggle
 ```
@@ -96,8 +97,8 @@ filter is applied by watching that same value.
   (so the polyline cuts across Bellandur Lake rather than routing around
   it). Real road-network routing needs a keyed service (OSRM, Mapbox
   Directions, Google Directions); adding one would mean either a paid key or
-  a self-hosted OSRM instance, which is out of scope for a `no API key, no
-billing` map. Worth doing with a key in hand.
+  a self-hosted OSRM instance, which is out of scope for a
+  `no API key, no billing` map. Worth doing with a key in hand.
 
 ## Accessibility
 
@@ -108,10 +109,3 @@ frame), a labelled map region, semantic list markup for the stop list, and
 `prefers-reduced-motion` support on cosmetic CSS transitions. The truck's
 motion itself is the app's core content, not decorative, so it is not
 disabled under reduced motion.
-
-## Known limitation
-
-Mobile/tablet responsive layout (map stacked above a scrollable sidebar
-below the `lg` breakpoint, header collapsing the origin/destination
-subtitle below `sm`) has not yet had a final manual pass on a real device or in DevTools'
-device toolbar. Worth one check before final submission.
