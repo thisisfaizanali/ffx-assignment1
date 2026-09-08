@@ -27,7 +27,7 @@ export function stopIcon(label: string): L.DivIcon {
   )
 }
 
-const TRUCK_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+const TRUCK_SVG = `<svg class="truck-glyph" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
   <rect x="1" y="7" width="13" height="9" rx="1"/>
   <path d="M14 10h4l3 3v3h-7z"/>
   <circle cx="6" cy="18" r="1.6"/>
@@ -36,8 +36,11 @@ const TRUCK_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" s
 
 // Anchored a few pixels off-center so the truck never fully eclipses the
 // pin it's arriving at or departing from (origin included, at progress 0).
-// The .truck-body div is rotated per-leg by RouteMap to face the direction
-// of travel (drawn facing east, so the rotation offset is bearing - 90).
+// The .truck-glyph (the SVG only, not the badge around it) is mirrored
+// per-leg by RouteMap to face the direction of travel: it's a side-view
+// glyph, drawn facing east, so heading west just flips it horizontally.
+// A full compass rotation doesn't make sense for a side-view icon - it
+// would flip upside down past +/-90 degrees.
 export const truckIcon = svgIcon(
   `<div class="truck-body" style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;background:#1e293b;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.5)">${TRUCK_SVG}</div>`,
   28,

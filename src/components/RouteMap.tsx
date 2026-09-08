@@ -54,14 +54,12 @@ function MapResize() {
   return null
 }
 
-// Bearing of the current leg, in degrees clockwise from north. A flat
-// lat/lng atan2 (not true great-circle bearing) is plenty accurate at this
-// route's scale, and matches Math.atan2 being the only new math needed.
-function legBearingDeg(route: Route, legIndex: number): number {
+// Whether the current leg heads west (negative longitude delta).
+function legHeadsWest(route: Route, legIndex: number): boolean {
   const points = pathPoints(route)
   const from = points[legIndex]
   const to = points[legIndex + 1] ?? from
-  return (Math.atan2(to.lng - from.lng, to.lat - from.lat) * 180) / Math.PI
+  return to.lng - from.lng < 0
 }
 
 function TruckMarker({ route }: { route: Route }) {
@@ -70,10 +68,11 @@ function TruckMarker({ route }: { route: Route }) {
 
   useEffect(() => {
     if (!point) return
-    // Icon is drawn facing east, so rotation 0 needs bearing 90 (east).
-    const rotation = legBearingDeg(route, point.legIndex) - 90
-    const body = markerRef.current?.getElement()?.querySelector<HTMLElement>('.truck-body')
-    if (body) body.style.transform = `rotate(${rotation}deg)`
+    // Glyph is drawn facing east, so heading west just mirrors it. A side
+    // view can't rotate to a compass bearing - past +/-90 degrees it flips
+    // upside down - so this only ever flips left/right, never rotates.
+    const glyph = markerRef.current?.getElement()?.querySelector<HTMLElement>('.truck-glyph')
+    if (glyph) glyph.style.transform = legHeadsWest(route, point.legIndex) ? 'scaleX(-1)' : ''
   }, [point, route])
 
   if (!point) return null
