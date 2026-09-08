@@ -149,10 +149,10 @@ function App() {
             style={{ background: 'var(--op-border)' }}
           />
           <span
-            className="hidden font-mono text-xs whitespace-nowrap sm:block"
+            className="hidden font-mono text-xs whitespace-nowrap uppercase sm:block"
             style={{ color: 'var(--op-text-muted)' }}
           >
-            ROUTE-2847 · BENGALURU
+            {storeRoute.origin.label} &rarr; {storeRoute.stops[storeRoute.stops.length - 1].label}
           </span>
         </div>
         <div className="flex shrink-0 items-center gap-2.5">
