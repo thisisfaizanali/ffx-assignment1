@@ -56,7 +56,11 @@ only re-renders on the slice it actually uses.
 `requestAnimationFrame`, using wall-clock elapsed time rather than a fixed
 tick. That means pausing freezes progress exactly where it was, and changing
 the speed multiplier never causes a jump, since the next frame just resumes
-computing from the current, unchanged progress value.
+computing from the current, unchanged progress value. A `visibilitychange`
+listener pauses a run in progress the instant the tab is backgrounded (and
+never auto-resumes on return), because `requestAnimationFrame` throttles
+well before it stops firing outright - without this, a backgrounded tab
+silently desyncs progress from wall clock instead of cleanly pausing.
 
 **Map.** Real Leaflet + OpenStreetMap tiles (no API key, no billing). The
 route, delivery points and the animated truck marker all use real Bengaluru
@@ -88,6 +92,12 @@ filter is applied by watching that same value.
   CSS custom property tokens (an "operations console" system: IBM Plex
   Sans/Mono, an amber accent for "active", light and dark palettes) to avoid
   the generic look of default Tailwind components.
+- **The route is straight-line legs over real roads**, not road-following
+  (so the polyline cuts across Bellandur Lake rather than routing around
+  it). Real road-network routing needs a keyed service (OSRM, Mapbox
+  Directions, Google Directions); adding one would mean either a paid key or
+  a self-hosted OSRM instance, which is out of scope for a `no API key, no
+  billing` map. Worth doing with a key in hand.
 
 ## Accessibility
 
@@ -102,8 +112,10 @@ disabled under reduced motion.
 ## Known limitation
 
 Mobile/tablet responsive layout (map stacked above a scrollable sidebar
-below the `lg` breakpoint) is implemented and structurally verified, but
-could not be visually verified in a real narrow viewport in this
-environment - the browser automation available here does not resize the
-actual viewport. Worth a manual check on a real device or DevTools before
-final submission.
+below the `lg` breakpoint, header collapsing the route-id subtitle below
+`sm`) is implemented and confirmed structurally correct (the right
+breakpoint classes on the right elements), but has not been visually
+confirmed in a real narrow viewport - the browser automation available in
+this environment cannot resize its own viewport independent of the rest of
+the browser window. Worth one manual check on a real device or in DevTools
+before final submission.
