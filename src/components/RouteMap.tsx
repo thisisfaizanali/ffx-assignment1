@@ -62,7 +62,7 @@ export function RouteMap({ dark }: RouteMapProps) {
       />
 
       <Marker position={[route.origin.lat, route.origin.lng]} icon={originIcon} keyboard={false}>
-        <Tooltip permanent direction="top" offset={[0, -8]} className="!text-xs">
+        <Tooltip direction="top" offset={[0, -8]} className="!text-xs">
           {route.origin.label}
         </Tooltip>
       </Marker>
@@ -74,7 +74,7 @@ export function RouteMap({ dark }: RouteMapProps) {
           icon={stopIcon(stop.id)}
           keyboard={false}
         >
-          <Tooltip permanent direction="top" offset={[0, -14]} className="!text-xs">
+          <Tooltip direction="top" offset={[0, -14]} className="!text-xs">
             {stop.id} &middot; {stop.label}
           </Tooltip>
         </Marker>

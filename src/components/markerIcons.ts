@@ -1,18 +1,23 @@
 import L from 'leaflet'
 
 // ponytail: inline SVG divIcons, no external marker image assets to wire up.
-function svgIcon(html: string, size: number): L.DivIcon {
+function svgIcon(
+  html: string,
+  size: number,
+  anchor: [number, number] = [size / 2, size / 2],
+): L.DivIcon {
   return L.divIcon({
     html,
     className: '',
     iconSize: [size, size],
-    iconAnchor: [size / 2, size / 2],
+    iconAnchor: anchor,
   })
 }
 
+// Green, matching the brief's mock (origin = green, delivery points = red).
 export const originIcon = svgIcon(
-  `<div style="width:14px;height:14px;border-radius:50%;background:#fff;border:2px solid #334155;box-shadow:0 1px 3px rgba(0,0,0,.4)"></div>`,
-  14,
+  `<div style="width:20px;height:20px;border-radius:50%;background:#22c55e;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.4)"></div>`,
+  20,
 )
 
 export function stopIcon(label: string): L.DivIcon {
@@ -29,7 +34,10 @@ const TRUCK_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" s
   <circle cx="17" cy="18" r="1.6"/>
 </svg>`
 
+// Anchored a few pixels off-center so the truck never fully eclipses the
+// pin it's arriving at or departing from (origin included, at progress 0).
 export const truckIcon = svgIcon(
   `<div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;background:#1e293b;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.5)">${TRUCK_SVG}</div>`,
   28,
+  [4, 24],
 )
