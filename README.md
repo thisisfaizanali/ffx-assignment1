@@ -1,7 +1,7 @@
 # Logistics Truck Route Visualizer
 
 A frontend application that simulates a delivery truck moving through a real
-route in Bengaluru — from Whitefield Hub through three delivery points, with
+route in Bengaluru: from Whitefield Hub through three delivery points, with
 a live map, real-time status readout, and playback controls.
 
 **Live demo:** https://ffx-assignment1.vercel.app/
@@ -12,22 +12,39 @@ Built with React, TypeScript, Vite, Zustand and Leaflet.
 
 ## Running locally
 
-```bash
-npm install
-npm run dev
-```
+Requires [Node.js](https://nodejs.org) 20.19+ (or 22.12+) and npm.
 
-Then open the URL Vite prints (default `http://localhost:5173`).
+1. Clone the repository and move into it:
 
-| Script | What it does |
-| --- | --- |
-| `npm run dev` | Start the dev server |
-| `npm run build` | Typecheck (`tsc -b`) and build for production |
-| `npm run preview` | Serve the production build locally |
-| `npm test` | Run the unit tests |
-| `npm run lint` | Lint the project |
+   ```bash
+   git clone https://github.com/thisisfaizanali/ffx-assignment1.git
+   cd ffx-assignment1
+   ```
 
-No API keys, environment variables or accounts are needed — the map uses
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Start the dev server:
+
+   ```bash
+   npm run dev
+   ```
+
+4. Open the URL Vite prints in the terminal (`http://localhost:5173` by
+   default).
+
+| Script            | What it does                                  |
+| ----------------- | --------------------------------------------- |
+| `npm run dev`     | Start the dev server                          |
+| `npm run build`   | Typecheck (`tsc -b`) and build for production |
+| `npm run preview` | Serve the production build locally            |
+| `npm test`        | Run the unit tests                            |
+| `npm run lint`    | Lint the project                              |
+
+No API keys, environment variables or accounts are needed: the map uses
 keyless OpenStreetMap tiles.
 
 ---
@@ -45,7 +62,7 @@ to the origin, or run at 1×, 2× or 4×. The theme toggle is in the header.
 
 The route is fetched through a mock service with realistic latency and a
 deliberate failure rate, so the loading and error states are reachable
-behaviour rather than code that never runs — if you land on the error card,
+behaviour rather than code that never runs. If you land on the error card,
 Retry re-fetches.
 
 ---
@@ -92,7 +109,7 @@ src/
 
 ### State: one small store, everything else derived
 
-The Zustand store holds exactly four fields — `status`, `progress` (0..1
+The Zustand store holds exactly four fields: `status`, `progress` (0..1
 along the whole path), `speed` and `route`. Nothing about the truck's
 position, distance, ETA or stop states is stored anywhere.
 
@@ -119,13 +136,13 @@ consequences fall out of that:
 
 A `visibilitychange` listener pauses a run in progress the moment the tab is
 backgrounded, and never auto-resumes. This matters because
-`requestAnimationFrame` gets throttled long before it stops firing outright
-— without an explicit pause, a backgrounded tab doesn't freeze, it crawls,
-and progress silently desyncs from wall clock.
+`requestAnimationFrame` gets throttled long before it stops firing outright.
+Without an explicit pause, a backgrounded tab doesn't freeze: it crawls, and
+progress silently desyncs from wall clock.
 
 ### Map
 
-Real Leaflet with OpenStreetMap tiles — no API key, no billing. The origin,
+Real Leaflet with OpenStreetMap tiles: no API key, no billing. The origin,
 delivery points and animated truck all use real Bengaluru coordinates.
 
 A few details worth noting:
@@ -144,8 +161,8 @@ A few details worth noting:
   `ResizeObserver` calls `invalidateSize()` to keep tiles from being drawn
   at a stale size.
 - **The truck glyph mirrors rather than rotates.** It's a side-view icon, so
-  rotating it to a compass bearing would flip it upside down past ±90° — on
-  a westbound route, that's the entire journey. Westward legs get a
+  rotating it to a compass bearing would flip it upside down past ±90°, and
+  on a westbound route, that's the entire journey. Westward legs get a
   horizontal flip; the badge around it stays square.
 
 ### Theme
@@ -165,7 +182,7 @@ always wins over the system setting.
 realistic 30 km/h average, so the numbers in the status panel are
 believable. The on-screen animation instead completes the full route in a
 fixed 20 seconds at 1×. Animating at the literal real-world pace would make
-the demo take 30–40 actual minutes.
+the demo take 30 to 40 actual minutes.
 
 **Zustand is scoped to simulation state only.** Data fetching lives in a
 plain hook (`useRoute`), theme in another (`useTheme`). Neither needs to be
@@ -176,19 +193,19 @@ service has a genuine failure rate, which means the loading skeleton, error
 card and retry path are real, reachable behaviour instead of code nobody
 ever sees run. The route data is isolated behind an async boundary
 (`getRoute(): Promise<Route>`), so nothing downstream knows or cares that
-it's local — swapping in a real backend is a change to one function body.
+it's local: swapping in a real backend is a change to one function body.
 
 **No component library.** Everything is built against a small set of CSS
-custom property tokens — an "operations console" system with IBM Plex
-Sans/Mono and an amber accent for active states, in light and dark — to
+custom property tokens (an "operations console" system with IBM Plex
+Sans/Mono and an amber accent for active states, in light and dark) to
 avoid the generic look of default component kits.
 
 **The route is straight-line legs over real roads**, not road-following, so
 the polyline cuts across Bellandur Lake rather than routing around it. Real
 road-network routing needs a keyed service (OSRM, Mapbox or Google
 Directions), which would mean either a paid key or a self-hosted OSRM
-instance — out of scope for a map that deliberately needs neither. Worth
-adding with a key in hand.
+instance, which is out of scope for a map that deliberately needs neither.
+Worth adding with a key in hand.
 
 ---
 
@@ -197,7 +214,7 @@ adding with a key in hand.
 - Keyboard-operable controls throughout, with themed `focus-visible` rings
 - `aria-pressed` on the playback speed selector, `aria-current="step"` on the
   active stop
-- `aria-live` on the status pill only — deliberately *not* on the distance
+- `aria-live` on the status pill only, deliberately _not_ on the distance
   and ETA figures, which change every frame and would flood a screen reader
 - A labelled map region, and semantic list markup for the stops
 - Decorative map markers are kept out of the tab order
@@ -213,7 +230,7 @@ adding with a key in hand.
 npm test
 ```
 
-Unit tests cover the pure logic the rest of the app depends on — haversine
+Unit tests cover the pure logic the rest of the app depends on: haversine
 distance, per-leg and total route distance, point-along-path interpolation
 including clamping at both ends, and the coordinate and ETA formatters.
 
