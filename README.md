@@ -17,8 +17,8 @@ Requires [Node.js](https://nodejs.org) 20.19+ (or 22.12+) and npm.
 1. Clone the repository and move into it:
 
    ```bash
-   git clone https://github.com/thisisfaizanali/ffx-assignment1.git
-   cd ffx-assignment1
+   git clone https://github.com/thisisfaizanali/truck-route-visualizer.git
+   cd truck-route-visualizer
    ```
 
 2. Install dependencies:
